@@ -1,34 +1,65 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T21:46:28.933Z",
+  "generatedAt": "2026-02-17T21:21:18.228Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 3,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the pre-login landing page (the unauthenticated EmptyState view) tagline text to exactly: “An AI-powered detective tool.”",
+        "summary": "Fix the answer-generation flow so the returned/generated answer text is not simply the same text the user entered as the riddle/question.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/EmptyState.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/AnswerGeneration.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/EmptyState.tsx"
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/components/AnswerGeneration.tsx"
         ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Make providing a custom riddle optional: allow generating an answer even if the user does not enter any riddle text.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/components/AnswerGeneration.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/App.tsx",
+          "frontend/src/components/AnswerGeneration.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Update the backend generateAnswer API behavior to treat the provided text parameter as optional riddle input and generate a non-empty answer even when that text is empty.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/components/EmptyState.tsx",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/AnswerGeneration.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

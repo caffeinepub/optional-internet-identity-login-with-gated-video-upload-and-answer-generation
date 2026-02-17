@@ -1,20 +1,51 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Update unauthenticated EmptyState tagline",
+  "title": "Riddle Solver — Fix echoing answers and make custom riddle optional (frontend)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Change the unauthenticated EmptyState tagline to the exact new sentence.",
+      "summary": "Send riddle as input (not answer) and prevent displaying an echoed riddle as the generated answer.",
       "acceptanceCriteria": [
-        "When the user is not authenticated and the EmptyState screen is shown, the tagline reads exactly “An AI-powered detective tool.”",
-        "The previous longer tagline (“An AI-powered detective tool to uncover hidden riddles from your clues”) no longer appears anywhere on the pre-login landing page."
+        "When a user generates an answer, the displayed “Generated Answer” text must not equal the provided riddle text (after trimming) in the common path.",
+        "The frontend must send the user’s riddle text as riddle input (not as the answer output), and the backend must return an actual generated answer string."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/EmptyState.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Replace the current tagline text with exactly: “An AI-powered detective tool.” Ensure the previous longer tagline string is fully removed from this unauthenticated landing view, and keep all user-facing text in English."
+          "description": "Update the generate-answer mutation to use intent-correct naming and arguments: treat the text parameter as riddle input (e.g., rename `answerText` -> `riddle`, and pass `string | null` to match the backend interface)."
+        },
+        {
+          "path": "frontend/src/components/AnswerGeneration.tsx",
+          "operation": "modify",
+          "description": "Update the generate flow to pass riddle text as riddle input (not as answer output), and add a client-side safeguard: if the returned generated answer (trimmed) equals the submitted riddle input (trimmed), do not display it as “Generated Answer”; instead show an English error/toast and keep the prior output cleared."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Add a clear UI toggle to optionally provide a custom riddle, and allow generating an answer without riddle text when disabled.",
+      "acceptanceCriteria": [
+        "The UI must provide a clear way to opt into providing a custom riddle (e.g., a toggle/checkbox labeled in English), and the default path must allow leaving the riddle empty.",
+        "The “Generate Answer” action must not be blocked solely because the riddle text is empty when the user has chosen not to provide a custom riddle.",
+        "User-facing validation/error messages must be updated so they do not instruct the user to enter riddle text when the custom riddle option is disabled."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Introduce a boolean UI control (checkbox/toggle) such as “Provide a custom riddle” with a default of off; when off, hide/disable the riddle textarea and ensure the app passes a null/empty riddle input to the answer-generation component without prompting the user to type a riddle."
+        },
+        {
+          "path": "frontend/src/components/AnswerGeneration.tsx",
+          "operation": "modify",
+          "description": "Adjust props and generation logic to accept an optional riddle input (e.g., `string | null`), update `canGenerate` so it does not require riddle text when the custom riddle option is disabled, and update validation/toast messaging to only ask for riddle text when the custom riddle option is enabled."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Align the generate-answer mutation input type with optional riddle behavior so callers can pass `null` when not providing a custom riddle, without additional frontend validation blocking the action."
         }
       ]
     }

@@ -88,9 +88,9 @@ export function useGenerateAnswer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ imageClueIds, riddleText }: { imageClueIds: bigint[]; riddleText: string }) => {
+    mutationFn: async ({ imageClueIds, riddle }: { imageClueIds: bigint[]; riddle: string | null }) => {
       if (!actor) throw new Error('Actor not available');
-      return actor.generateAnswer(imageClueIds, riddleText);
+      return actor.generateAnswer(imageClueIds, riddle);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['answers'] });
@@ -104,7 +104,7 @@ export function useGetVideoClue(clueId: bigint | null) {
   return useQuery<VideoClue | null>({
     queryKey: ['videoClue', clueId?.toString()],
     queryFn: async () => {
-      if (!actor || !clueId) return null;
+      if (!actor || clueId === null) return null;
       return actor.getVideoClue(clueId);
     },
     enabled: !!actor && !actorFetching && clueId !== null,
@@ -117,7 +117,7 @@ export function useGetImageClue(clueId: bigint | null) {
   return useQuery<ImageClue | null>({
     queryKey: ['imageClue', clueId?.toString()],
     queryFn: async () => {
-      if (!actor || !clueId) return null;
+      if (!actor || clueId === null) return null;
       return actor.getImageClue(clueId);
     },
     enabled: !!actor && !actorFetching && clueId !== null,
@@ -130,7 +130,7 @@ export function useGetAudioClue(clueId: bigint | null) {
   return useQuery<AudioClue | null>({
     queryKey: ['audioClue', clueId?.toString()],
     queryFn: async () => {
-      if (!actor || !clueId) return null;
+      if (!actor || clueId === null) return null;
       return actor.getAudioClue(clueId);
     },
     enabled: !!actor && !actorFetching && clueId !== null,
@@ -143,7 +143,7 @@ export function useGetAnswer(answerId: bigint | null) {
   return useQuery<Answer | null>({
     queryKey: ['answer', answerId?.toString()],
     queryFn: async () => {
-      if (!actor || !answerId) return null;
+      if (!actor || answerId === null) return null;
       return actor.getAnswer(answerId);
     },
     enabled: !!actor && !actorFetching && answerId !== null,

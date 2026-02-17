@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useGenerateAnswer, useGetAnswer } from '../hooks/useQueries';
+import { useGenerateAnswer } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -12,14 +12,15 @@ import { Badge } from '@/components/ui/badge';
 
 interface AnswerGenerationProps {
   riddleText: string;
+  useCustomRiddle: boolean;
 }
 
-export function AnswerGeneration({ riddleText }: AnswerGenerationProps) {
+export function AnswerGeneration({ riddleText, useCustomRiddle }: AnswerGenerationProps) {
   const [imageClueIdsInput, setImageClueIdsInput] = useState('');
-  const [generatedAnswerId, setGeneratedAnswerId] = useState<bigint | null>(null);
+  const [generatedAnswerText, setGeneratedAnswerText] = useState<string | null>(null);
+  const [usedImageClueIds, setUsedImageClueIds] = useState<bigint[]>([]);
   
   const generateMutation = useGenerateAnswer();
-  const { data: generatedAnswer, isLoading: answerLoading } = useGetAnswer(generatedAnswerId);
 
   const parseImageClueIds = (input: string): bigint[] => {
     if (!input.trim()) return [];
@@ -39,18 +40,29 @@ export function AnswerGeneration({ riddleText }: AnswerGenerationProps) {
       return;
     }
 
-    if (!riddleText.trim()) {
+    if (useCustomRiddle && !riddleText.trim()) {
       toast.error('Please enter riddle text in the Riddle Text card above');
       return;
     }
 
     try {
-      const answerId = await generateMutation.mutateAsync({
+      const riddleInput = riddleText.trim() || null;
+      const answerText = await generateMutation.mutateAsync({
         imageClueIds,
-        riddleText: riddleText.trim(),
+        riddle: riddleInput,
       });
-      setGeneratedAnswerId(answerId);
-      toast.success(`Answer generated successfully! ID: ${answerId}`);
+
+      // Safeguard: Check if the returned answer is just echoing the riddle
+      if (riddleInput && answerText.trim() === riddleInput) {
+        toast.error('Generated answer is invalid (echoed input). Please try again.');
+        setGeneratedAnswerText(null);
+        setUsedImageClueIds([]);
+        return;
+      }
+
+      setGeneratedAnswerText(answerText);
+      setUsedImageClueIds(imageClueIds);
+      toast.success('Answer generated successfully!');
       setImageClueIdsInput('');
     } catch (error: any) {
       console.error('Generate error:', error);
@@ -63,11 +75,14 @@ export function AnswerGeneration({ riddleText }: AnswerGenerationProps) {
   };
 
   const handleClearOutput = () => {
-    setGeneratedAnswerId(null);
+    setGeneratedAnswerText(null);
+    setUsedImageClueIds([]);
   };
 
   const isGenerating = generateMutation.isPending;
-  const canGenerate = imageClueIds.length > 0 && riddleText.trim() !== '' && !isGenerating;
+  const canGenerate = imageClueIds.length > 0 && 
+                      (!useCustomRiddle || riddleText.trim() !== '') && 
+                      !isGenerating;
 
   return (
     <Card>
@@ -129,7 +144,7 @@ export function AnswerGeneration({ riddleText }: AnswerGenerationProps) {
         </Button>
 
         {/* Output Section */}
-        {generatedAnswerId !== null && (
+        {generatedAnswerText !== null && (
           <>
             <Separator className="my-4" />
             <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
@@ -146,44 +161,25 @@ export function AnswerGeneration({ riddleText }: AnswerGenerationProps) {
               </div>
               
               <div className="space-y-2">
-                <div className="text-xs text-muted-foreground">Answer ID</div>
-                <div className="font-mono text-sm bg-background px-3 py-2 rounded border">
-                  {generatedAnswerId.toString()}
+                <div className="text-xs text-muted-foreground">Image Clue IDs Used</div>
+                <div className="flex flex-wrap gap-2">
+                  {usedImageClueIds.map((id) => (
+                    <Badge key={id.toString()} variant="outline">
+                      {id.toString()}
+                    </Badge>
+                  ))}
                 </div>
               </div>
-
-              {answerLoading ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Loading answer details...
-                </div>
-              ) : generatedAnswer ? (
-                <>
-                  <div className="space-y-2">
-                    <div className="text-xs text-muted-foreground">Image Clue IDs Used</div>
-                    <div className="flex flex-wrap gap-2">
-                      {generatedAnswer.imageClueIds.map((id) => (
-                        <Badge key={id.toString()} variant="outline">
-                          {id.toString()}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="text-xs text-muted-foreground">Answer Text</div>
-                    <Textarea
-                      value={generatedAnswer.answerText}
-                      readOnly
-                      rows={4}
-                      className="resize-none bg-background"
-                    />
-                  </div>
-                </>
-              ) : (
-                <div className="text-sm text-muted-foreground">
-                  Answer details not available
-                </div>
-              )}
+              
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">Answer Text</div>
+                <Textarea
+                  value={generatedAnswerText}
+                  readOnly
+                  rows={4}
+                  className="resize-none bg-background"
+                />
+              </div>
             </div>
           </>
         )}

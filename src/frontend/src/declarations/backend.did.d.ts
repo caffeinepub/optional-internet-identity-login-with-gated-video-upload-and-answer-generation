@@ -69,7 +69,7 @@ export interface _SERVICE {
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
-  'generateAnswer' : ActorMethod<[Array<bigint>, string], bigint>,
+  'generateAnswer' : ActorMethod<[Array<bigint>, [] | [string]], string>,
   'getAnswer' : ActorMethod<[bigint], [] | [Answer]>,
   'getAudioClue' : ActorMethod<[bigint], [] | [AudioClue]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,

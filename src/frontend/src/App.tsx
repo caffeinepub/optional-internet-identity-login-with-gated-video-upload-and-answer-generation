@@ -9,6 +9,8 @@ import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile } from './hooks/useQueries';
 import { ProfileSetupDialog } from './components/ProfileSetupDialog';
 import { ScrollText, X } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 export default function App() {
   const { identity } = useInternetIdentity();
@@ -18,6 +20,7 @@ export default function App() {
 
   // Riddle text state
   const [riddleText, setRiddleText] = useState('');
+  const [useCustomRiddle, setUseCustomRiddle] = useState(false);
 
   // Show profile setup if authenticated but no profile exists
   const showProfileSetup = isAuthenticated && !profileLoading && isFetched && userProfile === null;
@@ -50,34 +53,49 @@ export default function App() {
                   Riddle Text
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Enter the riddle you want to solve
+                  Optionally provide a custom riddle to solve
                 </p>
               </div>
               <div className="p-6 pt-0 space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="riddle-text" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Your Riddle
-                  </label>
-                  <textarea
-                    id="riddle-text"
-                    placeholder="Type or paste your riddle here..."
-                    value={riddleText}
-                    onChange={(e) => setRiddleText(e.target.value)}
-                    rows={6}
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="use-custom-riddle"
+                    checked={useCustomRiddle}
+                    onCheckedChange={setUseCustomRiddle}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Enter the riddle text that you want to analyze with the uploaded clues
-                  </p>
+                  <Label htmlFor="use-custom-riddle" className="cursor-pointer">
+                    Provide a custom riddle
+                  </Label>
                 </div>
-                {riddleText && (
-                  <button
-                    onClick={handleClearRiddle}
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 w-full"
-                  >
-                    <X className="mr-2 h-4 w-4" />
-                    Clear Riddle
-                  </button>
+
+                {useCustomRiddle && (
+                  <>
+                    <div className="space-y-2">
+                      <label htmlFor="riddle-text" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Your Riddle
+                      </label>
+                      <textarea
+                        id="riddle-text"
+                        placeholder="Type or paste your riddle here..."
+                        value={riddleText}
+                        onChange={(e) => setRiddleText(e.target.value)}
+                        rows={6}
+                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Enter the riddle text that you want to analyze with the uploaded clues
+                      </p>
+                    </div>
+                    {riddleText && (
+                      <button
+                        onClick={handleClearRiddle}
+                        className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-3 w-full"
+                      >
+                        <X className="mr-2 h-4 w-4" />
+                        Clear Riddle
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -86,7 +104,10 @@ export default function App() {
               <VideoClueUpload />
               <ImageClueUpload />
               <AudioClueUpload />
-              <AnswerGeneration riddleText={riddleText} />
+              <AnswerGeneration 
+                riddleText={useCustomRiddle ? riddleText : ''} 
+                useCustomRiddle={useCustomRiddle}
+              />
             </div>
           </div>
         )}

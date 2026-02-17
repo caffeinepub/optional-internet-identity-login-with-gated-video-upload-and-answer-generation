@@ -49,7 +49,7 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
-    generateAnswer(imageClueIds: Array<bigint>, answerText: string): Promise<bigint>;
+    generateAnswer(imageClueIds: Array<bigint>, riddle: string | null): Promise<string>;
     getAnswer(answerId: bigint): Promise<Answer | null>;
     getAudioClue(clueId: bigint): Promise<AudioClue | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;

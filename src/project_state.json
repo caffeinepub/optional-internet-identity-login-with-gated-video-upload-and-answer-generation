@@ -1,16 +1,26 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "App includes a pre-login landing page that should display the tagline “An AI-powered detective tool.”",
+  "summary": "Riddle/riddle-game app where users can generate riddles and answers, with an option to add their own riddle.",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Generated answer currently repeats the question instead of producing a distinct answer."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-pre-login-landing-page-the-unauthenticated-emptystate-view-tagline-text-to-exactly-an-ai-powered-detective-tool",
-      "title": "Update the pre-login landing page (the unauthenticated EmptyState view) tagline text to exactly: “An AI-powered detective tool.”",
+      "id": "feature-fix-the-answer-generation-flow-so-the-returned-generated-answer-text-is-not-simply-the-same-text-the-user-entered-as-the-riddle-question",
+      "title": "Fix the answer-generation flow so the returned/generated answer text is not simply the same text the user entered as the riddle/question.",
       "reqIds": [
         "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-make-providing-a-custom-riddle-optional-allow-generating-an-answer-even-if-the-user-does-not-enter-any-riddle-text",
+      "title": "Make providing a custom riddle optional: allow generating an answer even if the user does not enter any riddle text.",
+      "reqIds": [
+        "REQ-2"
       ],
       "version": 1
     }
@@ -18,12 +28,26 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Update the first pre-login page to display the on-screen text: “An AI-powered detective tool.”",
+      "summary": "Fix issue where the generated answer is just repeating the question instead of providing an actual answer.",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Make adding your own riddle optional (allow users to skip providing a custom riddle).",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Update the backend generateAnswer API behavior to treat the provided text parameter as optional riddle input and generate a non-empty answer even when that text is empty.",
+      "reqIds": [
+        "REQ-3"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Update pre-login landing page tagline",
+  "projectName": "Riddle Solver",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

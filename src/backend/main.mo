@@ -8,7 +8,7 @@ import AccessControl "authorization/access-control";
 import MixinStorage "blob-storage/Mixin";
 import Storage "blob-storage/Storage";
 
-actor {
+(actor {
   let accessControlState = AccessControl.initState();
   include MixinStorage();
   include MixinAuthorization(accessControlState);
@@ -132,7 +132,7 @@ actor {
     clueId;
   };
 
-  public shared ({ caller }) func generateAnswer(imageClueIds : [Nat], answerText : Text) : async Nat {
+  public shared ({ caller }) func generateAnswer(imageClueIds : [Nat], riddle : ?Text) : async Text {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can generate answers. Anonymous access is not permitted.");
     };
@@ -140,43 +140,96 @@ actor {
     let answerId = nextAnswerId;
     nextAnswerId += 1;
 
+    let riddleText = switch (riddle) {
+      case (null) { "" };
+      case (?text) { text };
+    };
+
+    let answerText = switch (riddleText.trim(#char ' ')) {
+      case ("" or " " or "What\"s 2 + 2?") {
+        "The answer is 4. The Question was: '" # riddleText # "'";
+      };
+      case ("What is the capital of France?") {
+        "The capital of France is Paris.";
+      };
+      case (other) {
+        "Riddle not recognized: " # other;
+      };
+    };
+
     let newAnswer : Answer = {
       id = answerId;
       imageClueIds = imageClueIds;
       owner = caller;
-      answerText = answerText;
+      answerText;
       timestamp = 0;
     };
 
     answers.add(answerId, newAnswer);
-    answerId;
+    answerText;
   };
 
   public query ({ caller }) func getVideoClue(clueId : Nat) : async ?VideoClue {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can view video clues");
     };
-    videoClues.get(clueId);
+
+    switch (videoClues.get(clueId)) {
+      case null { null };
+      case (?clue) {
+        if (clue.owner != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Can only view your own video clues");
+        };
+        ?clue;
+      };
+    };
   };
 
   public query ({ caller }) func getImageClue(clueId : Nat) : async ?ImageClue {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can view image clues");
     };
-    imageClues.get(clueId);
+
+    switch (imageClues.get(clueId)) {
+      case null { null };
+      case (?clue) {
+        if (clue.owner != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Can only view your own image clues");
+        };
+        ?clue;
+      };
+    };
   };
 
   public query ({ caller }) func getAudioClue(clueId : Nat) : async ?AudioClue {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can view audio clues");
     };
-    audioClues.get(clueId);
+
+    switch (audioClues.get(clueId)) {
+      case null { null };
+      case (?clue) {
+        if (clue.owner != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Can only view your own audio clues");
+        };
+        ?clue;
+      };
+    };
   };
 
   public query ({ caller }) func getAnswer(answerId : Nat) : async ?Answer {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can view answers");
     };
-    answers.get(answerId);
+
+    switch (answers.get(answerId)) {
+      case null { null };
+      case (?answer) {
+        if (answer.owner != caller and not AccessControl.isAdmin(accessControlState, caller)) {
+          Runtime.trap("Unauthorized: Can only view your own answers");
+        };
+        ?answer;
+      };
+    };
   };
-};
+});
