@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --radius: 0.5rem;
+        
+        /* Warm amber/orange detective theme - light mode */
+        --background: 0.98 0.01 60;
+        --foreground: 0.2 0.02 40;
+        
+        --card: 1 0 0;
+        --card-foreground: 0.2 0.02 40;
+        
+        --popover: 1 0 0;
+        --popover-foreground: 0.2 0.02 40;
+        
+        /* Warm amber primary */
+        --primary: 0.65 0.15 45;
+        --primary-foreground: 0.98 0.01 60;
+        
+        /* Warm secondary */
+        --secondary: 0.95 0.02 55;
+        --secondary-foreground: 0.3 0.03 40;
+        
+        --muted: 0.96 0.01 55;
+        --muted-foreground: 0.5 0.02 45;
+        
+        --accent: 0.92 0.03 50;
+        --accent-foreground: 0.25 0.03 40;
+        
+        --destructive: 0.55 0.22 25;
+        --destructive-foreground: 0.98 0 0;
+        
+        --border: 0.9 0.01 50;
+        --input: 0.9 0.01 50;
+        --ring: 0.65 0.15 45;
+        
+        --chart-1: 0.65 0.18 35;
+        --chart-2: 0.55 0.15 60;
+        --chart-3: 0.45 0.12 200;
+        --chart-4: 0.7 0.16 80;
+        --chart-5: 0.6 0.14 20;
+    }
+
+    .dark {
+        /* Dark detective theme with warm undertones */
+        --background: 0.15 0.02 40;
+        --foreground: 0.95 0.01 55;
+        
+        --card: 0.2 0.02 40;
+        --card-foreground: 0.95 0.01 55;
+        
+        --popover: 0.18 0.02 40;
+        --popover-foreground: 0.95 0.01 55;
+        
+        /* Brighter amber for dark mode */
+        --primary: 0.75 0.18 50;
+        --primary-foreground: 0.15 0.02 40;
+        
+        --secondary: 0.25 0.03 45;
+        --secondary-foreground: 0.95 0.01 55;
+        
+        --muted: 0.25 0.02 45;
+        --muted-foreground: 0.65 0.02 50;
+        
+        --accent: 0.35 0.04 48;
+        --accent-foreground: 0.95 0.01 55;
+        
+        --destructive: 0.6 0.2 25;
+        --destructive-foreground: 0.15 0.02 40;
+        
+        --border: 0.3 0.02 45;
+        --input: 0.3 0.02 45;
+        --ring: 0.7 0.16 50;
+        
+        --chart-1: 0.7 0.2 40;
+        --chart-2: 0.6 0.18 65;
+        --chart-3: 0.5 0.15 210;
+        --chart-4: 0.75 0.18 85;
+        --chart-5: 0.65 0.16 25;
+    }
+
+    * {
+        @apply border-border;
+    }
+    
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Update unauthenticated EmptyState tagline",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Change the unauthenticated EmptyState tagline to the exact new sentence.",
+      "acceptanceCriteria": [
+        "When the user is not authenticated and the EmptyState screen is shown, the tagline reads exactly “An AI-powered detective tool.”",
+        "The previous longer tagline (“An AI-powered detective tool to uncover hidden riddles from your clues”) no longer appears anywhere on the pre-login landing page."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/EmptyState.tsx",
+          "operation": "modify",
+          "description": "Replace the current tagline text with exactly: “An AI-powered detective tool.” Ensure the previous longer tagline string is fully removed from this unauthenticated landing view, and keep all user-facing text in English."
+        }
+      ]
+    }
+  ]
+}

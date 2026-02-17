@@ -1,0 +1,37 @@
+{
+  "kind": "build_request",
+  "title": "Update pre-login landing page tagline",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Update the pre-login landing page (the unauthenticated EmptyState view) tagline text to exactly: “An AI-powered detective tool.”",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "yes, on the first page before the login"
+        ]
+      },
+      "acceptanceCriteria": [
+        "When the user is not authenticated and the EmptyState screen is shown, the tagline reads exactly “An AI-powered detective tool.”",
+        "The previous longer tagline (“An AI-powered detective tool to uncover hidden riddles from your clues”) no longer appears anywhere on the pre-login landing page."
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not edit any files under frontend/src/components/ui or any frontend paths listed as immutable in SYSTEM_CONTEXT.",
+    "Keep all user-facing text in English."
+  ],
+  "nonGoals": [
+    "Changing any authenticated (post-login) headings, copy, or functionality.",
+    "Backend/canister changes or state migrations.",
+    "Changing the app name/logo or other branding beyond the specified tagline text."
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}
