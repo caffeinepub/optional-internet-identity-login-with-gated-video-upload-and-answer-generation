@@ -1,51 +1,26 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Riddle Solver — Fix echoing answers and make custom riddle optional (frontend)",
+  "title": "Riddle Solver — Frontend UX copy + multi-paragraph solution rendering",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Send riddle as input (not answer) and prevent displaying an echoed riddle as the generated answer.",
+      "id": "REQ-2",
+      "summary": "Update answer-generation UI copy to emphasize full solutions and render multi-paragraph backend output cleanly without breaking the echoed-riddle safeguard.",
       "acceptanceCriteria": [
-        "When a user generates an answer, the displayed “Generated Answer” text must not equal the provided riddle text (after trimming) in the common path.",
-        "The frontend must send the user’s riddle text as riddle input (not as the answer output), and the backend must return an actual generated answer string."
+        "The 'Generate Answer' output area correctly displays multi-line text (including blank lines) returned by the backend without truncation.",
+        "Any user-facing descriptions in the answer-generation UI that imply 'analyze riddle text' should be updated to explicitly say it generates a 'full solution' (English text).",
+        "The existing frontend safeguard that detects an echoed riddle remains compatible (i.e., should not falsely trigger for valid full-solution responses)."
       ],
       "file_operations": [
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Update the generate-answer mutation to use intent-correct naming and arguments: treat the text parameter as riddle input (e.g., rename `answerText` -> `riddle`, and pass `string | null` to match the backend interface)."
-        },
         {
           "path": "frontend/src/components/AnswerGeneration.tsx",
           "operation": "modify",
-          "description": "Update the generate flow to pass riddle text as riddle input (not as answer output), and add a client-side safeguard: if the returned generated answer (trimmed) equals the submitted riddle input (trimmed), do not display it as “Generated Answer”; instead show an English error/toast and keep the prior output cleared."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Add a clear UI toggle to optionally provide a custom riddle, and allow generating an answer without riddle text when disabled.",
-      "acceptanceCriteria": [
-        "The UI must provide a clear way to opt into providing a custom riddle (e.g., a toggle/checkbox labeled in English), and the default path must allow leaving the riddle empty.",
-        "The “Generate Answer” action must not be blocked solely because the riddle text is empty when the user has chosen not to provide a custom riddle.",
-        "User-facing validation/error messages must be updated so they do not instruct the user to enter riddle text when the custom riddle option is disabled."
-      ],
-      "file_operations": [
+          "description": "Update the shadcn/ui Card copy (title/description/labels) to explicitly describe generating a full solution (final answer + explanation) rather than restating/analyzing the riddle. Replace the current read-only Textarea output with a read-only display that preserves whitespace (including blank lines) using a non-input element (e.g., a container with whitespace-preserving styling) and supports long multi-paragraph text without truncation (allow full height and/or scrolling). Keep the echoed-riddle safeguard logic but harden it to also treat empty/whitespace-only backend responses as invalid while ensuring it only flags exact trimmed matches (to avoid false positives for valid solutions). Use existing shadcn/ui components already imported/composed; verify the component's usage instructions before implementing."
+        },
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Introduce a boolean UI control (checkbox/toggle) such as “Provide a custom riddle” with a default of off; when off, hide/disable the riddle textarea and ensure the app passes a null/empty riddle input to the answer-generation component without prompting the user to type a riddle."
-        },
-        {
-          "path": "frontend/src/components/AnswerGeneration.tsx",
-          "operation": "modify",
-          "description": "Adjust props and generation logic to accept an optional riddle input (e.g., `string | null`), update `canGenerate` so it does not require riddle text when the custom riddle option is disabled, and update validation/toast messaging to only ask for riddle text when the custom riddle option is enabled."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Align the generate-answer mutation input type with optional riddle behavior so callers can pass `null` when not providing a custom riddle, without additional frontend validation blocking the action."
+          "description": "Adjust user-facing copy around riddle entry to align with the new 'full solution' framing (e.g., replace 'analyze' phrasing in the riddle text helper and hero subtitle with 'generate a full solution' / 'solve with explanation'). Keep existing layout and composition; do not change restricted hook files or shadcn/ui internals. Verify the component's usage instructions before implementing."
         }
       ]
     }

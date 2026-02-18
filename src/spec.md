@@ -1,11 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Prevent generated answers from echoing the user’s riddle text, and allow answer generation without requiring a custom riddle.
+**Goal:** Ensure generated riddle answers are full solutions derived from the provided clue IDs and riddle text, not an echoed copy of the riddle.
 
 **Planned changes:**
-- Fix the frontend-to-backend answer generation flow so the riddle text is sent as input and the backend returns a generated answer string that is displayed as “Generated Answer.”
-- Update the backend `generateAnswer` behavior to accept empty/whitespace riddle input and still return a non-empty generated answer, while continuing to persist the generated answer in canister state.
-- Add a UI control (e.g., toggle/checkbox) to optionally provide a custom riddle; update validation and error messaging so generating is allowed when custom riddle input is disabled.
+- Update backend `generateAnswer(imageClueIds, riddle)` to always return a non-empty full-solution response (final answer + brief explanation referencing provided clue IDs), never returning text that exactly matches the input riddle.
+- Handle invalid/inaccessible `imageClueIds` by explicitly listing unavailable IDs while still attempting a best-effort solution using any remaining valid clues.
+- Preserve existing authenticated-user authorization behavior for answer generation.
+- Update frontend answer-generation UX copy to state it generates a “full solution” (not a restatement).
+- Ensure the frontend output area renders multi-paragraph (multi-line, including blank lines) solution text without truncation and keeps the echoed-riddle safeguard compatible with valid full solutions.
 
-**User-visible outcome:** Users can generate an answer that is not a repeat of their entered riddle, and they can generate an answer even without entering any riddle text by leaving the custom riddle option off.
+**User-visible outcome:** Users receive a clear final answer plus a short explanation (including which clue IDs were used), and the UI displays multi-paragraph solutions properly instead of showing the riddle text echoed back.

@@ -1,24 +1,16 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Riddle/riddle-game app where users can generate riddles and answers, with an option to add their own riddle.",
+  "summary": "Riddle-answer generation system; should produce full solutions by reasoning over clues (not repeat the riddle text).",
   "architectural_notes": [],
   "known_issues": [
-    "Generated answer currently repeats the question instead of producing a distinct answer."
+    "Generated 'answer' is currently just a repeat of the riddle text instead of a solved solution"
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-fix-the-answer-generation-flow-so-the-returned-generated-answer-text-is-not-simply-the-same-text-the-user-entered-as-the-riddle-question",
-      "title": "Fix the answer-generation flow so the returned/generated answer text is not simply the same text the user entered as the riddle/question.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-make-providing-a-custom-riddle-optional-allow-generating-an-answer-even-if-the-user-does-not-enter-any-riddle-text",
-      "title": "Make providing a custom riddle optional: allow generating an answer even if the user does not enter any riddle text.",
+      "id": "feature-adjust-the-frontend-answer-generation-ux-copy-to-reflect-that-the-system-generates-a-full-solution-not-a-restatement-and-ensure-the-ui-gracefully-displays-multi-paragraph-solution-output-from-the-backend",
+      "title": "Adjust the frontend answer generation UX copy to reflect that the system generates a full solution (not a restatement), and ensure the UI gracefully displays multi-paragraph solution output from the backend.",
       "reqIds": [
         "REQ-2"
       ],
@@ -28,25 +20,20 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix issue where the generated answer is just repeating the question instead of providing an actual answer.",
+      "summary": "Generate a full riddle solution by reasoning over the clues instead of repeating the riddle text",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Make adding your own riddle optional (allow users to skip providing a custom riddle).",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Update the backend generateAnswer API behavior to treat the provided text parameter as optional riddle input and generate a non-empty answer even when that text is empty.",
+      "summary": "Update the backend `generateAnswer(imageClueIds, riddle)` so it produces a full, non-empty solution derived from the provided clue IDs and riddle text, and never returns a response that is just the original riddle text echoed back.",
       "reqIds": [
-        "REQ-3"
+        "REQ-1"
       ],
       "status": "pending"
     }
   ],
+  "gameProjectType": "none",
   "projectName": "Riddle Solver",
   "clarification_mode": "instant",
   "clarification_rounds": 0

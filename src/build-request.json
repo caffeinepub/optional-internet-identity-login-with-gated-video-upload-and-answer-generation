@@ -1,76 +1,72 @@
 {
   "kind": "build_request",
-  "title": "Fix answer generation echoing question and make custom riddle optional",
+  "title": "Generate full riddle solutions instead of echoing riddle text",
   "projectName": "Riddle Solver",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Fix the answer-generation flow so the returned/generated answer text is not simply the same text the user entered as the riddle/question.",
-      "target": "both",
+      "text": "Update the backend `generateAnswer(imageClueIds, riddle)` so it produces a full, non-empty solution derived from the provided clue IDs and riddle text, and never returns a response that is just the original riddle text echoed back.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2"
         ],
         "quotes": [
-          "the generated answer is just the question"
+          "the generated answer is still just the riddle",
+          "the system should think over the clues and generated a full solution"
         ]
       },
       "acceptanceCriteria": [
-        "When a user generates an answer, the displayed “Generated Answer” text must not equal the provided riddle text (after trimming) in the common path.",
-        "The frontend must send the user’s riddle text as riddle input (not as the answer output), and the backend must return an actual generated answer string.",
-        "The backend must continue to persist the generated answer in canister state (answers map) while returning the generated answer text to the caller."
+        "Given a non-empty `riddle` input, the returned text must not be exactly equal (after trimming) to the input `riddle`.",
+        "The returned text must be a 'full solution' format that includes (at minimum) a clear final answer and a short explanation that references the provided `imageClueIds` (e.g., by listing the IDs used).",
+        "If the riddle cannot be confidently solved with the available inputs, return a helpful best-effort solution text (e.g., 'Most likely answer: …' plus reasoning and what information is missing) rather than repeating the riddle or returning a generic 'try again' message.",
+        "If any provided `imageClueIds` do not exist or are not accessible to the caller, the response must still be helpful and explicitly indicate which clue IDs were unavailable/invalid, while still attempting a solution using the remaining valid clues.",
+        "The function must continue to enforce the existing authorization rule (authenticated users only)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Make providing a custom riddle optional: allow generating an answer even if the user does not enter any riddle text.",
+      "text": "Adjust the frontend answer generation UX copy to reflect that the system generates a full solution (not a restatement), and ensure the UI gracefully displays multi-paragraph solution output from the backend.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-2"
         ],
         "quotes": [
-          "make adding your own riddle optional"
+          "the system should think over the clues and generated a full solution"
         ]
       },
       "acceptanceCriteria": [
-        "The UI must provide a clear way to opt into providing a custom riddle (e.g., a toggle/checkbox labeled in English), and the default path must allow leaving the riddle empty.",
-        "The “Generate Answer” action must not be blocked solely because the riddle text is empty when the user has chosen not to provide a custom riddle.",
-        "User-facing validation/error messages must be updated so they do not instruct the user to enter riddle text when the custom riddle option is disabled."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Update the backend generateAnswer API behavior to treat the provided text parameter as optional riddle input and generate a non-empty answer even when that text is empty.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "the generated answer is just the question, and make adding your own riddle optional"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Calling generateAnswer with an empty/whitespace riddle input must still succeed (assuming authorization passes) and return a non-empty generated answer text.",
-        "Calling generateAnswer with a non-empty riddle input must return an answer that is not a direct echo of the riddle input.",
-        "No state migration is required unless a breaking change to stable state is introduced (avoid changing stored Answer shape if possible)."
+        "The 'Generate Answer' output area correctly displays multi-line text (including blank lines) returned by the backend without truncation.",
+        "Any user-facing descriptions in the answer-generation UI that imply 'analyze riddle text' should be updated to explicitly say it generates a 'full solution' (English text).",
+        "The existing frontend safeguard that detects an echoed riddle remains compatible (i.e., should not falsely trigger for valid full-solution responses)."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in backend/main.mo.",
-    "Do not edit files in frontend immutablePaths (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and frontend/src/components/ui).",
-    "Use English for all user-facing text."
+    "Do not introduce additional backend services or external AI/LLM integrations; implement solution generation logic within the existing single Motoko actor.",
+    "Keep all Motoko logic in `backend/main.mo` (single-actor architecture).",
+    "Do not modify files under `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`, or anything inside `frontend/src/components/ui`; compose existing UI components instead."
   ],
   "nonGoals": [
-    "Implementing real AI/LLM-based riddle solving or external AI integrations.",
+    "Performing actual image/audio/video content understanding (no OCR, no CV/ML analysis of blobs).",
     "Adding third-party authentication beyond Internet Identity.",
-    "Adding new databases or external storage services."
+    "Adding real-time messaging or WebSocket-based streaming of generation results."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

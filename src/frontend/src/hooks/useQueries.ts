@@ -88,7 +88,7 @@ export function useGenerateAnswer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ imageClueIds, riddle }: { imageClueIds: bigint[]; riddle: string | null }) => {
+    mutationFn: async ({ imageClueIds, riddle }: { imageClueIds: bigint[]; riddle: string }) => {
       if (!actor) throw new Error('Actor not available');
       return actor.generateAnswer(imageClueIds, riddle);
     },

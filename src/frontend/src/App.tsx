@@ -41,7 +41,7 @@ export default function App() {
             <div className="text-center space-y-2">
               <h1 className="text-4xl font-bold tracking-tight">Riddle Solver</h1>
               <p className="text-muted-foreground text-lg">
-                Upload clues and let AI uncover the hidden riddle
+                Upload clues and generate a full solution with explanation
               </p>
             </div>
 
@@ -83,7 +83,7 @@ export default function App() {
                         className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Enter the riddle text that you want to analyze with the uploaded clues
+                        Enter the riddle text that you want to solve with the uploaded clues
                       </p>
                     </div>
                     {riddleText && (

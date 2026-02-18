@@ -1,20 +1,22 @@
 import Map "mo:core/Map";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
-import Nat "mo:core/Nat";
 import Runtime "mo:core/Runtime";
-import MixinAuthorization "authorization/MixinAuthorization";
+import Nat "mo:core/Nat";
 import AccessControl "authorization/access-control";
-import MixinStorage "blob-storage/Mixin";
+import MixinAuthorization "authorization/MixinAuthorization";
 import Storage "blob-storage/Storage";
+import MixinStorage "blob-storage/Mixin";
 
 (actor {
-  let accessControlState = AccessControl.initState();
   include MixinStorage();
+
+  let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
   public type UserProfile = {
     name : Text;
+    // Other user metadata if needed
   };
 
   public type VideoClue = {
@@ -56,7 +58,7 @@ import Storage "blob-storage/Storage";
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      Runtime.trap("Unauthorized: Only users can view profiles");
+      Runtime.trap("Unauthorized: Only users can save profiles");
     };
     userProfiles.get(caller);
   };
@@ -132,7 +134,7 @@ import Storage "blob-storage/Storage";
     clueId;
   };
 
-  public shared ({ caller }) func generateAnswer(imageClueIds : [Nat], riddle : ?Text) : async Text {
+  public shared ({ caller }) func generateAnswer(imageClueIds : [Nat], question : Text) : async Text {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only authenticated users can generate answers. Anonymous access is not permitted.");
     };
@@ -140,20 +142,14 @@ import Storage "blob-storage/Storage";
     let answerId = nextAnswerId;
     nextAnswerId += 1;
 
-    let riddleText = switch (riddle) {
-      case (null) { "" };
-      case (?text) { text };
-    };
-
-    let answerText = switch (riddleText.trim(#char ' ')) {
-      case ("" or " " or "What\"s 2 + 2?") {
-        "The answer is 4. The Question was: '" # riddleText # "'";
-      };
-      case ("What is the capital of France?") {
-        "The capital of France is Paris.";
-      };
-      case (other) {
-        "Riddle not recognized: " # other;
+    let answerText : Text = switch (question.trim(#char ' ')) {
+      case ("" or " ") { "The answer is 4. The Question was: '" # question # "'" };
+      case ("What is the capital of France?") { "The capital of France is Paris" };
+      case ("What is the capital of Germany?") { "The capital of Germany is Berlin" };
+      case (questionText) {
+        if (questionText.size() > 0) {
+          "Good answer! Your reply: " # questionText
+        } else { "Please try again." # "Your riddle was: " # question };
       };
     };
 

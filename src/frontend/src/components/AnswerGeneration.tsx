@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Sparkles, Loader2, CheckCircle2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface AnswerGenerationProps {
   riddleText: string;
@@ -46,14 +46,26 @@ export function AnswerGeneration({ riddleText, useCustomRiddle }: AnswerGenerati
     }
 
     try {
-      const riddleInput = riddleText.trim() || null;
+      // Always pass a string to the backend (empty string if no custom riddle)
+      const riddleInput = riddleText.trim();
       const answerText = await generateMutation.mutateAsync({
         imageClueIds,
         riddle: riddleInput,
       });
 
-      // Safeguard: Check if the returned answer is just echoing the riddle
-      if (riddleInput && answerText.trim() === riddleInput) {
+      // Safeguard: Check if the returned answer is invalid
+      const trimmedAnswer = answerText.trim();
+      
+      // Check for empty/whitespace-only responses
+      if (!trimmedAnswer) {
+        toast.error('Generated answer is empty. Please try again.');
+        setGeneratedAnswerText(null);
+        setUsedImageClueIds([]);
+        return;
+      }
+
+      // Check if the returned answer is just echoing the riddle (exact match)
+      if (riddleInput && trimmedAnswer === riddleInput) {
         toast.error('Generated answer is invalid (echoed input). Please try again.');
         setGeneratedAnswerText(null);
         setUsedImageClueIds([]);
@@ -62,7 +74,7 @@ export function AnswerGeneration({ riddleText, useCustomRiddle }: AnswerGenerati
 
       setGeneratedAnswerText(answerText);
       setUsedImageClueIds(imageClueIds);
-      toast.success('Answer generated successfully!');
+      toast.success('Full solution generated successfully!');
       setImageClueIdsInput('');
     } catch (error: any) {
       console.error('Generate error:', error);
@@ -89,10 +101,10 @@ export function AnswerGeneration({ riddleText, useCustomRiddle }: AnswerGenerati
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
-          Generate Answer
+          Generate Full Solution
         </CardTitle>
         <CardDescription>
-          Analyze riddle text with multiple image clues
+          Generate a complete answer with explanation using image clues
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -128,17 +140,17 @@ export function AnswerGeneration({ riddleText, useCustomRiddle }: AnswerGenerati
           {isGenerating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generating...
+              Generating Solution...
             </>
           ) : generateMutation.isSuccess ? (
             <>
               <CheckCircle2 className="mr-2 h-4 w-4" />
-              Generated
+              Solution Generated
             </>
           ) : (
             <>
               <Sparkles className="mr-2 h-4 w-4" />
-              Generate Answer
+              Generate Full Solution
             </>
           )}
         </Button>
@@ -149,7 +161,7 @@ export function AnswerGeneration({ riddleText, useCustomRiddle }: AnswerGenerati
             <Separator className="my-4" />
             <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
               <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Generated Answer</Label>
+                <Label className="text-base font-semibold">Full Solution</Label>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -172,13 +184,12 @@ export function AnswerGeneration({ riddleText, useCustomRiddle }: AnswerGenerati
               </div>
               
               <div className="space-y-2">
-                <div className="text-xs text-muted-foreground">Answer Text</div>
-                <Textarea
-                  value={generatedAnswerText}
-                  readOnly
-                  rows={4}
-                  className="resize-none bg-background"
-                />
+                <div className="text-xs text-muted-foreground">Solution Text</div>
+                <ScrollArea className="h-[200px] w-full rounded-md border bg-background">
+                  <div className="p-4 text-sm whitespace-pre-wrap break-words">
+                    {generatedAnswerText}
+                  </div>
+                </ScrollArea>
               </div>
             </div>
           </>
